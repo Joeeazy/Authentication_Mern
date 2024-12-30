@@ -1,5 +1,5 @@
-import { MailtrapClient } from "mailtrap"
-import { VERIFICATION_EMAIL_TEMPLATE } from "./emailTemplate.js"
+//import { MailtrapClient } from "mailtrap"
+import { PASSWORD_RESET_REQUEST_TEMPLATE, VERIFICATION_EMAIL_TEMPLATE, PASSWORD_RESET_SUCCESS_TEMPLATE } from "./emailTemplate.js"
 import { mailtrapClient, sender } from "./mailtrap.config.js"
 
 export const sendVerificationEmail = async (email, verificationToken) => {
@@ -38,5 +38,41 @@ export const sendWelcomeEmail = async (email, name) => {
     } catch (error) {
         console.log(`Error sending welcome email`, error);
         throw new Error(`Error Sending Welcome Email: ${error}`)        
+    }
+}
+
+export const sendPasswordResetEmail = async (email, resetURL) => {
+    const recepient = [{email}];
+
+    try {
+        const response = await mailtrapClient.send({
+            from: sender,
+            to: recepient,
+            subject: "Reset your Password",
+            html: PASSWORD_RESET_REQUEST_TEMPLATE.replace("{resetURL}", resetURL),
+            category: "Password Reset"
+        })
+    } catch (error) {
+        console.log(`Error sending password reset email`, error);
+
+        throw new Error(`Error sending password reset email: ${error}`)
+    }
+}
+
+export const sendResetSuccessEmail = async (email) => {
+    const recepient = [{email}];
+
+    try {
+        const response = await mailtrapClient.send({
+            from: sender,
+            to: recepient,
+            subject: "Password Reset Successful",
+            html: PASSWORD_RESET_SUCCESS_TEMPLATE,
+            category: "Password Resset Success"
+        })
+    } catch (error) {
+        console.log(`Error sending password reset sucessful email`, error);
+
+        throw new Error(`Error sending password reset successful email: ${error}`)
     }
 }
