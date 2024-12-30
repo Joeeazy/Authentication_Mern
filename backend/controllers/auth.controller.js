@@ -1,6 +1,6 @@
 import User from "../models/user.model.js"
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 
 export const signup = async (req, res) => {
     try {
@@ -8,7 +8,7 @@ export const signup = async (req, res) => {
 
         //check for neccessary inputs
         if(!name, !email, !password) {
-            return res.status(400).json({success: false, message: "Missing credentials"})
+            return res.status(400).json({success: false, message: "All fields are required"})
         }
     
         const existingUser = await User.findOne({email});
@@ -19,12 +19,29 @@ export const signup = async (req, res) => {
         //hashpassword before storing user to db
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        //create the new user
-        const user = await User.create({name, email, password: hashedPassword})
-        //save to db
-        await user.save();
+        const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
 
-        return res.status(200).json({success:true, message: "User Created successfully"})
+        //create the new user
+        const user = new User({
+            email,
+            password: hashedPassword,
+            name,
+            verificationToken,
+            verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000 //24hours
+        })
+        //save user to db
+        await user.save()
+
+        // jwt token
+        generateTokenAndSetCookie(res, user._id)
+
+        return res.status(201).json({success:true, message: "User Created successfully",
+        user: {
+            ...user._doc,
+            password: undefined,
+        }
+    })
+    
     } catch (error) {
         res.status(400).json({success: false, message: error.message})
     }
