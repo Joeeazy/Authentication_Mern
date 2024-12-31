@@ -5,6 +5,7 @@ import { User } from "lucide-react";
 import { Mail } from "lucide-react";
 import { LockKeyhole } from "lucide-react";
 import { useState } from "react";
+import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
 
 export default function SignUpPage() {
   const [name, setName] = useState("");
@@ -48,6 +49,7 @@ export default function SignUpPage() {
             onChange={(e) => setPassword(e.target.value)}
           />
           {/* password strength meter */}
+          <PasswordStrengthMeter password={password} />
           <motion.button
             className="mt-5 w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white 
 						font-bold rounded-lg shadow-lg hover:from-green-600
