@@ -5,14 +5,18 @@ import { LockKeyhole } from "lucide-react";
 import { useState } from "react";
 
 import Input from "../components/Input";
+import { useAuthStore } from "../store/authStore";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const isLoading = false;
 
-  const handleLogin = (e) => {
+  const {login , isLoading, error} = useAuthStore();
+
+  const handleLogin = async (e) => {
     e.preventDefault();
+
+    await login(email, password)
   };
   return (
     <motion.div
@@ -48,6 +52,7 @@ export default function LoginPage() {
               Forgot password?
             </Link>
           </div>
+          {error && <p className="text-red-500 font-semibold mb-2">{error}</p>}
           <motion.button
             className="mt-5 w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white 
             font-bold rounded-lg shadow-lg hover:from-green-600
